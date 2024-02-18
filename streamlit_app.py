@@ -3,6 +3,8 @@ from llama_index.core import VectorStoreIndex, ServiceContext, Document, SimpleD
 from llama_index.llms.openai import OpenAI
 import openai
 
+from constant import SYSTEM_PROMPT, SESSION_STATE_MESSAGE_CONTENT
+
 st.set_page_config(page_title="Chat with the Streamlit docs, powered by LlamaIndex", page_icon="🦙", layout="centered", initial_sidebar_state="auto", menu_items=None)
 openai.api_key = st.secrets.openai_key
 st.title("Chat with the Streamlit docs, powered by LlamaIndex 💬🦙")
@@ -10,7 +12,7 @@ st.info("Check out the full tutorial to build this app in our [blog post](https:
          
 if "messages" not in st.session_state.keys(): # Initialize the chat messages history
     st.session_state.messages = [
-        {"role": "assistant", "content": "Ask me a question about Streamlit's open-source Python library!"}
+        {"role": "assistant", "content": SESSION_STATE_MESSAGE_CONTENT}
     ]
 
 @st.cache_resource(show_spinner=False)
@@ -18,7 +20,7 @@ def load_data():
     with st.spinner(text="Loading and indexing the Streamlit docs – hang tight! This should take 1-2 minutes."):
         reader = SimpleDirectoryReader(input_dir="./data", recursive=True)
         docs = reader.load_data()
-        service_context = ServiceContext.from_defaults(llm=OpenAI(model="gpt-3.5-turbo", temperature=0.5, system_prompt="You are an expert on the Streamlit Python library and your job is to answer technical questions. Assume that all questions are related to the Streamlit Python library. Keep your answers technical and based on facts – do not hallucinate features."))
+        service_context = ServiceContext.from_defaults(llm=OpenAI(model="gpt-3.5-turbo", temperature=0.5, system_prompt=SYSTEM_PROMPT))
         index = VectorStoreIndex.from_documents(docs, service_context=service_context)
         return index
 
