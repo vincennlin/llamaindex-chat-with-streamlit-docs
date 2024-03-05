@@ -2,6 +2,7 @@ import streamlit as st
 from llama_index.core import VectorStoreIndex, ServiceContext, Document, SimpleDirectoryReader
 from llama_index.llms.openai import OpenAI
 import openai
+import re
 
 from constant import SYSTEM_PROMPT, SESSION_STATE_MESSAGE_CONTENT
 
@@ -41,10 +42,15 @@ if st.session_state.messages[-1]["role"] != "assistant":
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
             response = st.session_state.chat_engine.chat(prompt)
-            print(response)
             st.write(response)
             message = {"role": "assistant", "content": response}
             st.session_state.messages.append(message) # Add response to message history
+
+            document_info = str(response.metadata)
+            find = str(re.findall(r"'page_label': '[^']*', 'file_name': '[^']*'", document_info))
+            message = {"role": "assistant", "content": find}
+            st.session_state.messages.append(find) # Add response to message history
+
             st.write(response.response)
             message = {"role": "assistant", "content": response.response}
             st.session_state.messages.append(message) # Add response to message history
