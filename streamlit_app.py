@@ -42,15 +42,14 @@ if st.session_state.messages[-1]["role"] != "assistant":
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
             response = st.session_state.chat_engine.chat(prompt)
-            st.write(response)
-            message = {"role": "assistant", "content": response}
+
+            st.write(response.sources)
+            message = {"role": "assistant", "content": response.sources}
             st.session_state.messages.append(message) # Add response to message history
 
-            if hasattr(response, 'metadata'):
-                document_info = str(response.metadata)
-                find = str(re.findall(r"'page_label': '[^']*', 'file_name': '[^']*'", document_info))
-                message = {"role": "assistant", "content": find}
-                st.session_state.messages.append(find) # Add response to message history
+            st.write(response.source_nodes)
+            message = {"role": "assistant", "content": response.source_nodes}
+            st.session_state.messages.append(message) # Add response to message history
 
             st.write(response.response)
             message = {"role": "assistant", "content": response.response}
